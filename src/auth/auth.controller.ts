@@ -4,7 +4,8 @@ import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import {Tokens} from "./types/tokens.type";
 import {AuthGuard} from "@nestjs/passport";
-import {GetCurrentUserId, Public} from "../common/decorators";
+import {GetCurrentUser, GetCurrentUserId, Public} from "../common/decorators";
+import {RtGuard} from "../common/guards";
 
 @Controller('auth')
 export class AuthController {
@@ -29,22 +30,23 @@ export class AuthController {
 
 
   @Post('logout')
+  @UseGuards(RtGuard)
   @HttpCode(HttpStatus.OK)
   logout(@GetCurrentUserId() UserId: string): Promise<boolean> {
     return this.authService.logout(UserId);
   }
-/*
+
   @Public()
   @UseGuards(RtGuard)
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   refreshTokens(
-      @GetCurrentUserId() userId: number,
+      @GetCurrentUserId() userId: string,
       @GetCurrentUser('refreshToken') refreshToken: string,
   ): Promise<Tokens> {
-    return this.authService.refreshTokens(userId, refreshToken);
+    return this.authService.refrshToken(userId, refreshToken);
   }
-  }*/
+
 
 
 }

@@ -99,5 +99,20 @@ export class AuthService {
       });
       return true;
   }
-  refrshToken() {}
+  async refrshToken(userId:string,rt :string):Promise<Tokens> {
+      const user = await this.prismaservice.user.findUnique({
+          where: {
+              id: userId,
+          },
+      });
+      if (!user || !user.hashedrf) throw new ForbiddenException('Access Denied');
+
+      const rtMatches = await argon.verify(user.hashedrf, rt);
+      if (!rtMatches) throw new ForbiddenException('Access Denied');
+
+      const tokens = await this.getToken(user.id, user.email);
+      await this.updateRtHash(user.id, tokens.refresh_token);
+
+      return tokens;
+  }
 }
